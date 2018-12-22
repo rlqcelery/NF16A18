@@ -162,6 +162,7 @@ int main()
     abr_inserer(13,&abr);
     abr_inserer(17,&abr);
     abr_inserer(15,&abr);
+    abr_inserer(18,&abr);
     abr_prefixe(abr);
     abr_supprimer(17,&abr);
     return 0;
