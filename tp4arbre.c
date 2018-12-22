@@ -164,7 +164,7 @@ void abr_supprimer(int valeur,T_Arbre *abr)
         y=abr_succusseur(z, abr);
         pere=abr_pere(y, abr);
         if(pere->gauche==y)
-            pere->gauche=NULL;
+            pere->gauche=y->droit;
         else
             pere->droit=y->droit;
         z->val=y->val;
@@ -174,12 +174,31 @@ void abr_supprimer(int valeur,T_Arbre *abr)
 
 void abr_clone(T_Arbre original, T_Arbre *clone, T_Noeud* parent)
 {
-
+    if(original==NULL)
+    {
+        printf("L'arbre original est vide.\n");
+        return 0;
+    }
+    T_Noeud * t=abr_creer_noeud(original->val);//clone un noeud racine
+    *clone=t;
+    if(original->droit!=NULL)//clone sous arbre droit
+    {
+        T_Noeud * t1=abr_creer_noeud(original->droit->val);
+        (*clone)->droit=t1;
+        abr_clone(original->droit,&((*clone)->droit), original);
+    }
+    if(original->gauche!=NULL)//clone sous arbre gauche
+    {
+        T_Noeud * t2=abr_creer_noeud(original->gauche->val);
+        (*clone)->gauche=t2;
+        abr_clone(original->gauche,&((*clone)->gauche), original);
+    }
 }
 
 int main()
 {
     T_Arbre abr=NULL;
+    T_Arbre abrclone=NULL;
     //abr_prefixe(abr);
     //T_Noeud* x=abr_pere(abr, &abr);
     //T_Arbre abr=NULL;
@@ -188,16 +207,17 @@ int main()
     abr_inserer(1,&abr);
     abr_inserer(6,&abr);
     abr_inserer(13,&abr);
-    //abr_inserer(12,&abr);
+    abr_inserer(12,&abr);
     abr_inserer(17,&abr);
     abr_inserer(15,&abr);
-    abr_inserer(18,&abr);
-    abr_inserer(20,&abr);
+    abr_inserer(16,&abr);
     abr_inserer(19,&abr);
+    abr_inserer(18,&abr);
     abr_prefixe(abr);
     //abr_rechercher(15,&abr);
-    abr_supprimer(11,&abr);
+    //abr_supprimer(13,&abr);
     printf("\n");
-    abr_prefixe(abr);
+    abr_clone(abr, &abrclone, NULL);
+    abr_prefixe(abrclone);
     return 0;
 }
