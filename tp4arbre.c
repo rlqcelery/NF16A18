@@ -5,18 +5,20 @@ typedef struct Noeud
     int val;
     struct Noeud * gauche;
     struct Noeud * droit;
-}T_Noeud;
+} T_Noeud;
 
 typedef T_Noeud * T_Arbre;
 
-T_Noeud *abr_creer_noeud(int valeur){
+T_Noeud *abr_creer_noeud(int valeur)
+{
     T_Noeud* n=malloc(sizeof(T_Noeud));
     n->val=valeur;
     n->gauche=NULL;
     n->droit=NULL;
     return n;
 }
-void abr_afficher_noeud(T_Noeud* noeud){
+void abr_afficher_noeud(T_Noeud* noeud)
+{
     printf("Noeud --> %d\n",noeud->val);
     printf("      --> FG : ");
     if(noeud->gauche!=NULL)
@@ -30,19 +32,23 @@ void abr_afficher_noeud(T_Noeud* noeud){
         printf("NULL");
     printf("\n");
 }
-void abr_prefixe(T_Arbre abr){
-    if(abr==NULL)
-        return ;
-    abr_afficher_noeud(abr);
-    abr_prefixe(abr->gauche);
-    abr_prefixe(abr->droit);
+void abr_prefixe(T_Arbre abr)
+{
+    if(abr!=NULL)
+    {
+        abr_afficher_noeud(abr);
+        abr_prefixe(abr->gauche);
+        abr_prefixe(abr->droit);
+    }
 }
 
-T_Noeud* abr_pere(T_Noeud* noeud, T_Arbre *abr){
+T_Noeud* abr_pere(T_Noeud* noeud, T_Arbre *abr)
+{
     T_Noeud* it = *abr;
     if(noeud==it)
         return NULL;
-    while(it!=NULL && it->gauche!=noeud && it->droit!=noeud){
+    while(it!=NULL && it->gauche!=noeud && it->droit!=noeud)
+    {
         if(noeud->val<it->val)
             it=it->gauche;
         else
@@ -55,8 +61,8 @@ void abr_inserer(int valeur,T_Arbre *abr)
 {
 
     T_Noeud * z=abr_creer_noeud(valeur);
-    T_Noeud * y=NULL;
-    T_Noeud * x=*abr;
+    T_Noeud * y=NULL;//pointer sur le noeud parent de x
+    T_Noeud * x=*abr;//pour parcourir tous les noeuds
     while(x!=NULL)
     {
         y=x;
@@ -65,8 +71,6 @@ void abr_inserer(int valeur,T_Arbre *abr)
         else
             x=x->droit;
     }
-    //y=abr_pere(x,&abr);
-
     if(y==NULL)
         *abr=z;
     else
@@ -77,38 +81,59 @@ void abr_inserer(int valeur,T_Arbre *abr)
             y->droit=z;
     }
 }
-T_Noeud* abr_minimum(T_Arbre *abr){
+
+T_Noeud* abr_minimum(T_Arbre *abr)
+{
     T_Noeud* it = *abr;
     while(it->gauche!=NULL)
         it=it->gauche;
     return it;
 }
-T_Noeud* abr_succusseur(T_Noeud* noeud, T_Arbre *abr){
+
+T_Noeud* abr_succusseur(T_Noeud* noeud, T_Arbre *abr)
+{
     T_Noeud* it=noeud;
     if(noeud->droit!=NULL)
         return abr_minimum(&noeud->droit);
     T_Noeud* pere=abr_pere(noeud, abr);
-    while(pere!=NULL && it==pere->droit){
+    while(pere!=NULL && it==pere->droit)
+    {
         it=pere;
         pere=abr_pere(pere, abr);
     }
     return pere;
 }
-T_Noeud* abr_rechercher(int valeur, T_Arbre *abr){
+
+T_Noeud* abr_rechercher(int valeur, T_Arbre *abr)
+{
     T_Noeud* it = *abr;
-    while(it!=NULL && valeur!=it->val){
+    while(it!=NULL && valeur!=it->val)
+    {
         if(valeur<it->val)
             it=it->gauche;
         else
             it=it->droit;
     }
-    return it;
+    if(it==NULL)
+    {
+        printf("Noeud %d not found.\n",valeur);
+        return 0;
+    }
+    else
+    {
+        return it;
+    }
 }
-void abr_supprimer(int valeur,T_Arbre *abr){
+
+void abr_supprimer(int valeur,T_Arbre *abr)
+{
     T_Noeud* z=abr_rechercher(valeur, abr);
+    if(z==NULL)//z not found
+        return 0;
     T_Noeud* pere=abr_pere(z,abr);
-    T_Noeud* y=NULL;
-    if(z->gauche==NULL && z->droit==NULL){
+    T_Noeud* y=NULL;//successeur de z
+    if(z->gauche==NULL && z->droit==NULL)//z n'a pas de fils
+    {
         if(pere->gauche==z)
             pere->gauche=NULL;
         else
@@ -116,7 +141,8 @@ void abr_supprimer(int valeur,T_Arbre *abr){
         free(z);
         return;
     }
-    else if(z->gauche==NULL){
+    else if(z->gauche==NULL)//z n'a qu'un fils droit
+    {
         if(pere->gauche==z)
             pere->gauche=z->droit;
         else
@@ -124,7 +150,8 @@ void abr_supprimer(int valeur,T_Arbre *abr){
         free(z);
         return;
     }
-    else if(z->droit==NULL){
+    else if(z->droit==NULL)//z n'a qu'un fils gauche
+    {
         if(pere->gauche==z)
             pere->gauche=z->gauche;
         else
@@ -132,13 +159,14 @@ void abr_supprimer(int valeur,T_Arbre *abr){
         free(z);
         return;
     }
-    else{
+    else//z possede 2 fils
+    {
         y=abr_succusseur(z, abr);
         pere=abr_pere(y, abr);
         if(pere->gauche==y)
             pere->gauche=NULL;
         else
-            pere->droit=NULL;
+            pere->droit=y->droit;
         z->val=y->val;
         free(y);
     }
@@ -160,10 +188,16 @@ int main()
     abr_inserer(1,&abr);
     abr_inserer(6,&abr);
     abr_inserer(13,&abr);
+    //abr_inserer(12,&abr);
     abr_inserer(17,&abr);
     abr_inserer(15,&abr);
     abr_inserer(18,&abr);
+    abr_inserer(20,&abr);
+    abr_inserer(19,&abr);
     abr_prefixe(abr);
-    abr_supprimer(17,&abr);
+    //abr_rechercher(15,&abr);
+    abr_supprimer(11,&abr);
+    printf("\n");
+    abr_prefixe(abr);
     return 0;
 }
